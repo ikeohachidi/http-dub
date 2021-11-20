@@ -5,30 +5,40 @@ import { HTTPMethod, RequestWrapper, httpRequest } from './utilities/http';
 const http = (path: string): Resource => {
 	return {
 		_requestHandler: function(request: RequestWrapper) {
-		const { path, method, option, callback } = request;
+		const { path, method, option } = request;
 
-			let fullPath = pathReplacer(path, option?.arguments);
+			return () => {
+				let fullPath = pathReplacer(path, option?.arguments);
+				
+				this._beforeEach();
 
-			this._beforeEach();
-
-			if (callback) {
-				callback();
-				return;
+				const pendingRequest = httpRequest({ 
+					method,
+					path: fullPath,
+				}, option)
+	
+				Promise.allSettled([pendingRequest])
+					.then(([req]) => {
+						this._afterEach(req);
+					})
+	
+				return pendingRequest;
 			}
-
-			const pendingRequest = httpRequest({ 
-				method,
-				path: fullPath,
-			}, option)
-
-			Promise.allSettled([pendingRequest])
-				.then(([req]) => {
-					this._afterEach(req);
-				})
-
-			return pendingRequest;
 		},
 		getReq: function(option?: Option) {
+			const handleArgs: RequestWrapper = {
+				path,
+				method: HTTPMethod.POST,
+			}
+
+			if (option) {
+				handleArgs.option = option;
+			}
+
+			const handler = this._requestHandler(handleArgs);
+			handler();
+		},
+		postReq: function(option?: Option) {
 			const handleArgs: RequestWrapper = {
 				path,
 				method: HTTPMethod.GET,
@@ -38,22 +48,47 @@ const http = (path: string): Resource => {
 				handleArgs.option = option;
 			}
 
-			return this._requestHandler(handleArgs)
-		},
-		postReq: function(option?: Option) {
-			return {};
+			const handler = this._requestHandler(handleArgs);
+			handler();
 		},
 		putReq: function(option?: Option) {
-			return {};
+			const handleArgs: RequestWrapper = {
+				path,
+				method: HTTPMethod.PUT,
+			}
+
+			if (option) {
+				handleArgs.option = option;
+			}
+
+			const handler = this._requestHandler(handleArgs);
+			handler();
 		},
 		deleteReq: function(option?: Option) {
-			return {};
+			const handleArgs: RequestWrapper = {
+				path,
+				method: HTTPMethod.DELETE,
+			}
+
+			if (option) {
+				handleArgs.option = option;
+			}
+
+			const handler = this._requestHandler(handleArgs);
+			handler();
 		},
 		otherReq: {},
-		extend: function (callName: string, callback: (option?: Option) => Promise<unknown>)  {
-			this.otherReq[callName] = this._requestHandler({
-				method
-			})
+		extend: function (funcName: string, method: HTTPMethod, addedPath: string)  {
+			this.otherReq[funcName] = (option: Option) => {
+				const handler = this._requestHandler({
+					method,
+					option,
+					path: path + `/${addedPath}`,
+				});
+
+				handler();
+			}
+
 			return this;
 		},
 		beforeEach(callback: (req: object, res: object) => unknown) {
@@ -69,35 +104,4 @@ const http = (path: string): Resource => {
 	}
 }
 
-const req = http('https://jsonplaceholder.typicode.com/todos/1/bl')
-	.afterEach((req: object) => {
-		console.log('after equest', req)
-	})
-	.beforeEach((req: object) => {
-		console.log('before request', req)
-	})
-	.extend('list-users', (option?: Option) => {
-		console.log('hello world')
-		return new Promise((resolve) => {
-			resolve('all good')
-		}); 
-	})
-
-// console.log(req.otherReq);
-req.otherReq['list-users']();
-
-
-// req.getReq({
-// 	arguments: {
-// 		'$1': "chidi",
-// 		'$2': "ikeoha"
-// 	},
-// 	onResolve: (response: object) => {
-// 		console.log('Successful Request');
-// 		console.log(response);
-// 	},
-// 	onReject: (response: object) => {
-// 		console.log('Bad Request');
-// 		console.log(response);
-// 	}
-// })
+export default http;

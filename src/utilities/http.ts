@@ -74,11 +74,6 @@ interface RequestWrapper {
     path: string;
     method: HTTPMethod;
     option?: Option;
-    callback?: Function;
-    // hook: {
-    //     beforeEach: Function;
-    //     afterEach: Function;
-    // }
 }
 
 export {

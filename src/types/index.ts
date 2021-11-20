@@ -1,4 +1,4 @@
-import { RequestWrapper } from "../utilities/http";
+import { HTTPMethod, RequestWrapper } from "../utilities/http";
 
 export interface OptionArguments {
     [arg: string]: string | number,
@@ -7,11 +7,11 @@ export interface OptionArguments {
 export interface Option {
   arguments?: OptionArguments;
   body?: string;
-  onResolve: (response: object) => unknown;
-  onReject: (error: object) => unknown; 
+  onResolve?: (response: object) => unknown;
+  onReject?: (error: object) => unknown; 
 }
 
-type RequestFunc = (option?: Option) => unknown;
+type RequestFunc = (option?: Option) => void;
 
 export interface Resource {
   getReq: RequestFunc
@@ -20,9 +20,9 @@ export interface Resource {
   deleteReq: RequestFunc;
   beforeEach: (callback: (req: object, res: object) => unknown) => Resource;
   afterEach: (callback: (req: object, res: object) => unknown) => Resource;
-  extend: (callName: string, callback: (option?: Option) => unknown) => Resource;
-  otherReq: { [callName: string]: RequestFunc };
+  extend: (funcName: string, method: HTTPMethod, path: string) => Resource;
+  otherReq: { [callName: string]: unknown };
   _afterEach: Function;
-  _requestHandler: (request: RequestWrapper) => unknown;
+  _requestHandler: (request: RequestWrapper) => () => Promise<unknown>;
   _beforeEach: Function;
 }
