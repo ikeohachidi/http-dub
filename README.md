@@ -17,6 +17,14 @@ http.getReq({
 })
 ```
 
+**Hooks**
+Hooks are provided that can run some code before or after a request is made
+```javascript
+http
+  .afterEach(() => {})
+  .beforeEach(() => {})
+```
+
 All default http verbs are `getReq, postReq, putReq, deleteReq`
 
 You can also extend it if you have more requests you'd like to make
