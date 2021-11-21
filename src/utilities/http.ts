@@ -17,6 +17,7 @@ const responseAction = (httpResponse: Response) => {
 const httpRequest = <T>(method: HTTPMethod, path: string, option?: Option): Promise<T> => {
         const requestConfig: Record<string, unknown> = {
             method,
+            body: option?.body,
             ...option?.config
         }
 
