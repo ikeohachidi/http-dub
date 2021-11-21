@@ -4,7 +4,7 @@ export interface OptionArguments {
 
 export interface Option {
 	arguments?: OptionArguments;
-	body?: string;
+	body?: BodyInit;
 	config?: RequestConfig;
 	onResolve?: (response: object) => unknown;
 	onReject?: (error: object) => unknown; 
@@ -17,8 +17,8 @@ export interface Resource {
 	postReq: RequestFunc;
 	putReq: RequestFunc;
 	deleteReq: RequestFunc;
-	beforeEach: (callback: (req: object) => unknown) => Resource;
-	afterEach: (callback: (req: object, res: object) => unknown) => Resource;
+	beforeEach: (callback: () => unknown) => Resource;
+	afterEach: (callback: (rres: object) => unknown) => Resource;
 	extend: (funcName: string, method: HTTPMethod, path: string) => Resource;
 	otherReq: { [callName: string]: unknown };
 	_afterEach: Function;

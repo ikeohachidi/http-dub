@@ -78,16 +78,16 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 
 			return this;
 		},
-		beforeEach(callback: (req: object) => unknown) {
+		beforeEach(callback: () => unknown) {
 			this._beforeEach = callback;
 			return this;
 		},
-		afterEach(callback: (req: object, res: object) => unknown) {
+		afterEach(callback: (res: object) => unknown) {
 			this._afterEach = callback;
 			return this;
 		},
-		_beforeEach: function(req: object) {},
-		_afterEach: function(req: object, res: object) {},
+		_beforeEach: function() {},
+		_afterEach: function() {},
 	}
 }
 
