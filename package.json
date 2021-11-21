@@ -1,10 +1,19 @@
 {
-  "name": "http-resource",
+  "name": "http-dub",
   "author": {
     "name": "Ikeoha Chidi",
     "url": "https://ikeoha.com"
   },
   "version": "1.0.0",
+  "files": ["dist"],
+  "main": "./dist/http-dub.umd.js",
+  "module": "./dist/http-dub.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/http-dub.es.js",
+      "require": "./dist/http-dub.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
