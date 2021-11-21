@@ -1,6 +1,10 @@
 {
   "name": "http-resource",
-  "version": "0.0.0",
+  "author": {
+    "name": "Ikeoha Chidi",
+    "url": "https://ikeoha.com"
+  },
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
