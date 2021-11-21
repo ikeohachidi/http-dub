@@ -1,18 +1,4 @@
-import { Option } from "../types";
-import { pathReplacer } from "./path";
-
-enum HTTPMethod {
-    GET = "GET",
-    POST = "POST",
-    PUT = "PUT",
-    DELETE = "DELETE"
-}
-
-interface ResourceRequest {
-    method: HTTPMethod;
-    path: string;
-    body?: string; 
-}
+import { HTTPMethod, Option } from "../types";
 
 const responseAction = (httpResponse: Response) => {
     const contentType = httpResponse.headers.get("content-type");
@@ -28,21 +14,16 @@ const responseAction = (httpResponse: Response) => {
     return httpResponse.text();
 } 
 
-const httpRequest = <T>(request: ResourceRequest, option?: Option): Promise<T> => {
-        const { method, path, body } = request;
-
-        const requestOptions: Record<string, unknown> = {
+const httpRequest = <T>(method: HTTPMethod, path: string, option?: Option): Promise<T> => {
+        const requestConfig: Record<string, unknown> = {
             method,
-            credential: 'include',
-        }
-        if (body) {
-            requestOptions.body = body;
+            ...option?.config
         }
 
         return new Promise((resolve, reject) => {
             let statusCode = 200;
     
-            return fetch(path, requestOptions)
+            return fetch(path, requestConfig)
             .then((response) => {
                 statusCode = response.status;
                 return responseAction(response);
@@ -70,14 +51,6 @@ const httpRequest = <T>(request: ResourceRequest, option?: Option): Promise<T> =
         });
 }
 
-interface RequestWrapper {
-    path: string;
-    method: HTTPMethod;
-    option?: Option;
-}
-
 export {
-    HTTPMethod,
-    RequestWrapper,
     httpRequest,
 }
