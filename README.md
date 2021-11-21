@@ -60,3 +60,5 @@ req
   .afterEach(() => {})
   .beforeEach(() => {})
 ```
+
+If you like the project consider starring on [Github](https://github.com/ikeohachidi/rest-resources). All contributions are welcome, Issues and PR.If you like the project consider starring it on Github
