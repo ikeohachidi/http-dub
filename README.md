@@ -5,6 +5,8 @@ This project was initially created to simplify http calls in Vuex Actions, but c
 ## Usage
 
 ```javascript
+import { http } from "http-dub"; 
+
 const req = http("https://yoururl.com/:id);
 ```
 
