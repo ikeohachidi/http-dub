@@ -48,7 +48,7 @@ const httpRequest = <T>(request: ResourceRequest, option?: Option): Promise<T> =
                 return responseAction(response);
             })
             .then(body => {
-                if (statusCode === 200) {
+                if (statusCode >= 200 && statusCode < 300) {
                     if (option?.onResolve) {
                         option?.onResolve(body);
                     }
