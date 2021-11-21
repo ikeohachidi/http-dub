@@ -1,4 +1,4 @@
-# http-dub (WIP)
+# http-dub
 A delightfully easy to use wrapper over the fetch API providing an easier way to create RESTful endpoints. Inspired by Phoenix frameworks "resources" macro.
 This project was initially created to simplify http calls in Vuex Actions, but can be used anywhere.
 
