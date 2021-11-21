@@ -28,7 +28,7 @@ const http = (path: string): Resource => {
 		getReq: function(option?: Option) {
 			const handleArgs: RequestWrapper = {
 				path,
-				method: HTTPMethod.POST,
+				method: HTTPMethod.GET,
 			}
 
 			if (option) {
