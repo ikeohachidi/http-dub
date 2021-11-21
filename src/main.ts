@@ -1,21 +1,24 @@
-import { Option, Resource } from './types';
+import { HTTPMethod, Option, RequestConfig, RequestWrapper, Resource } from './types';
 import { pathReplacer } from './utilities/path';
-import { HTTPMethod, RequestWrapper, httpRequest } from './utilities/http';
+import { httpRequest } from './utilities/http';
 
-const http = (path: string): Resource => {
+const http = (path: string, requestConfig?: RequestConfig): Resource => {
 	return {
 		_requestHandler: function(request: RequestWrapper) {
-		const { path, method, option } = request;
+			const { path, method, option } = request;
 
 			return () => {
 				let fullPath = pathReplacer(path, option?.arguments);
 				
 				this._beforeEach();
 
-				const pendingRequest = httpRequest({ 
-					method,
-					path: fullPath,
-				}, option)
+				const pendingRequest = httpRequest(method, fullPath, {
+					...option,
+					config: {
+						...requestConfig,
+						...option?.config
+					}
+				});
 	
 				Promise.allSettled([pendingRequest])
 					.then(([req]) => {
@@ -26,55 +29,39 @@ const http = (path: string): Resource => {
 			}
 		},
 		getReq: function(option?: Option) {
-			const handleArgs: RequestWrapper = {
+			const handler = this._requestHandler({
 				path,
+				option,
 				method: HTTPMethod.GET,
-			}
+			});
 
-			if (option) {
-				handleArgs.option = option;
-			}
-
-			const handler = this._requestHandler(handleArgs);
 			handler();
 		},
 		postReq: function(option?: Option) {
-			const handleArgs: RequestWrapper = {
+			const handler = this._requestHandler({
 				path,
-				method: HTTPMethod.GET,
-			}
+				option,
+				method: HTTPMethod.POST,
+			});
 
-			if (option) {
-				handleArgs.option = option;
-			}
-
-			const handler = this._requestHandler(handleArgs);
 			handler();
 		},
 		putReq: function(option?: Option) {
-			const handleArgs: RequestWrapper = {
+			const handler = this._requestHandler({
 				path,
+				option,
 				method: HTTPMethod.PUT,
-			}
+			});
 
-			if (option) {
-				handleArgs.option = option;
-			}
-
-			const handler = this._requestHandler(handleArgs);
 			handler();
 		},
 		deleteReq: function(option?: Option) {
-			const handleArgs: RequestWrapper = {
+			const handler = this._requestHandler({
 				path,
+				option,
 				method: HTTPMethod.DELETE,
-			}
+			});
 
-			if (option) {
-				handleArgs.option = option;
-			}
-
-			const handler = this._requestHandler(handleArgs);
 			handler();
 		},
 		otherReq: {},
