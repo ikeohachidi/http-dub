@@ -1,39 +1,62 @@
 # rest-resources (WIP)
 A delightfully easy to use wrapper over the fetch API providing an easier way to create RESTful endpoints. Inspired by Phoenix frameworks "resources" macro.
+This project was initially created to simplify http calls in Vuex Actions, but can be used anywhere.
 
 ## Usage
+
 ```javascript
-const http = http("https://yoururl.com/$1);
+const req = http("https://yoururl.com/:id);
+```
 
-// Making a Get request
+**NOTE**  The `:id` will be replaced by a provided argument during execution of one of the http methods, if the value isn't provided it's automatically removed.
 
-// "user-id" will be insert into the url in place of $1
-http.getReq({
+### Eg, GET Request
+```javascript
+req.getReq({
   arguments: {
-    $1: "user-id"
+    // :id will be replaced with "user-id" in the url
+    ":id": "user-id"
   },
   onResolve: () => {},
-  onReject: () => {}
+  onReject: (resp) => {<do something>}
 })
 ```
 
-**Hooks**
-Hooks are provided that can run some code before or after a request is made
+### Custom Request
+If an extra route or http method is need besides the one that the library provides you can easily add with the `extend` method. The custom request is available on the `otherReq` method.
+
 ```javascript
-http
+// req.extend(<funcName>, <method>, <path>)
+req.extend("listUsers", "GET", "/list-users");
+
+// The above added extension can now be called with
+req.otherReq.listUsers();
+```
+
+**NOTE**  The extended path is only available as a subpath of the original URL
+
+
+List of all Supported **request** methods
+```
+getReq: "GET" request
+postReq: "POST" request
+putReq: "PUT" request
+deleteReq: "DELETE" request
+otherReq: custom requests added with the "extend" method
+```
+Each of the above takes an object as argument. The object properties are
+```javascript
+arguments object; // Eg { :id: 5 }
+body // body of fetch function
+config RequestConfig; // The remaining properties of a fetch functions config excluding body
+onResolve // callback function to handle successful request
+onReject // callback function which gets the error returned from the request as the first argument 
+```
+
+### Hooks
+Hooks are provided that can run some code before or/and after a request is made
+```javascript
+req
   .afterEach(() => {})
   .beforeEach(() => {})
-```
-
-All default http verbs are `getReq, postReq, putReq, deleteReq`
-
-You can also extend it if you have more requests you'd like to make
-```
-http.extend('functionName', "httpMethod", "appendedPath");
-```
-
-You can now run:
-```
-// you can still pass the same arguments you would to the default requests methods
-http.otherReq.functionName()
 ```
