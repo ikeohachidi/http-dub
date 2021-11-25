@@ -3,33 +3,37 @@ import { pathReplacer } from './utilities/path';
 import { httpRequest } from './utilities/http';
 
 const http = (path: string, requestConfig?: RequestConfig): Resource => {
+	let _beforeEach = function() {};
+	let _afterEach = function(response: object) {};
+
+	const _requestHandler = function<T>(request: RequestWrapper): () => Promise<T> {
+		const { path, method, option } = request;
+
+		return () => {
+			let fullPath = pathReplacer(path, option?.arguments);
+			
+			_beforeEach();
+
+			const pendingRequest = httpRequest<T>(method, fullPath, {
+				...option,
+				config: {
+					...requestConfig,
+					...option?.config
+				}
+			});
+
+			Promise.allSettled([pendingRequest])
+				.then(([req]) => {
+					_afterEach(req);
+				})
+
+			return pendingRequest;
+		}
+	}
+
 	return {
-		_requestHandler: function(request: RequestWrapper) {
-			const { path, method, option } = request;
-
-			return () => {
-				let fullPath = pathReplacer(path, option?.arguments);
-				
-				this._beforeEach();
-
-				const pendingRequest = httpRequest(method, fullPath, {
-					...option,
-					config: {
-						...requestConfig,
-						...option?.config
-					}
-				});
-	
-				Promise.allSettled([pendingRequest])
-					.then(([req]) => {
-						this._afterEach(req);
-					})
-	
-				return pendingRequest;
-			}
-		},
 		getReq: function(option?: Option) {
-			const handler = this._requestHandler({
+			const handler = _requestHandler({
 				path,
 				option,
 				method: HTTPMethod.GET,
@@ -38,7 +42,7 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 			handler();
 		},
 		postReq: function(option?: Option) {
-			const handler = this._requestHandler({
+			const handler = _requestHandler({
 				path,
 				option,
 				method: HTTPMethod.POST,
@@ -47,7 +51,7 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 			handler();
 		},
 		putReq: function(option?: Option) {
-			const handler = this._requestHandler({
+			const handler = _requestHandler({
 				path,
 				option,
 				method: HTTPMethod.PUT,
@@ -56,7 +60,7 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 			handler();
 		},
 		deleteReq: function(option?: Option) {
-			const handler = this._requestHandler({
+			const handler = _requestHandler({
 				path,
 				option,
 				method: HTTPMethod.DELETE,
@@ -67,7 +71,7 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 		otherReq: {},
 		extend: function (funcName: string, method: HTTPMethod, addedPath: string)  {
 			this.otherReq[funcName] = (option: Option) => {
-				const handler = this._requestHandler({
+				const handler = _requestHandler({
 					method,
 					option,
 					path: path + `/${addedPath}`,
@@ -79,15 +83,13 @@ const http = (path: string, requestConfig?: RequestConfig): Resource => {
 			return this;
 		},
 		beforeEach(callback: () => unknown) {
-			this._beforeEach = callback;
+			_beforeEach = callback;
 			return this;
 		},
 		afterEach(callback: (res: object) => unknown) {
-			this._afterEach = callback;
+			_afterEach = callback;
 			return this;
 		},
-		_beforeEach: function() {},
-		_afterEach: function() {},
 	}
 }
 

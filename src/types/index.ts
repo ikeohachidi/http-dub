@@ -1,5 +1,5 @@
 export interface OptionArguments {
-		[arg: string]: string | number,
+	[arg: string]: string | number,
 }
 
 export interface Option {
@@ -21,9 +21,6 @@ export interface Resource {
 	afterEach: (callback: (rres: object) => unknown) => Resource;
 	extend: (funcName: string, method: HTTPMethod, path: string) => Resource;
 	otherReq: { [callName: string]: unknown };
-	_afterEach: Function;
-	_beforeEach: Function;
-	_requestHandler: (request: RequestWrapper) => () => Promise<unknown>;
 }
 
 export enum HTTPMethod {
